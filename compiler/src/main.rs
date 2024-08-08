@@ -19,6 +19,12 @@ fn main() -> Result<(), CompilerError> {
 
     let mut lexer: Lexer = Lexer::init();
 
+    if files.is_empty() {
+        println!("Welcome to the Fragment REPL!");
+        lexer.lex();
+        return Ok(());
+    }
+
     println!("Compiling files:");
     for file in files.iter() {
         println!("{:?} ", file);
@@ -27,6 +33,7 @@ fn main() -> Result<(), CompilerError> {
             Err(e) => return Err(CompilerError::FileIOError(file.to_path_buf(), e)),
         };
         lexer.new_file(file);
+        lexer.lex();
     }
 
     Ok(())
