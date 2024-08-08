@@ -1,6 +1,6 @@
 [workspace]
 
-members = [ "compiler","lexer", "parser", "tokenizer"]
+members = [ "common", "compiler","lexer", "parser", "tokenizer"]
 resolver = "2"
 
 [profile.release-opt]
