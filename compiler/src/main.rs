@@ -1,4 +1,4 @@
-use std::{fs::File, path::PathBuf};
+use std::path::PathBuf;
 
 use argparse::{ArgumentParser, Collect};
 use common::error::CompilerError;
@@ -21,17 +21,13 @@ fn main() -> Result<(), CompilerError> {
 
     if files.is_empty() {
         println!("Welcome to the Fragment REPL!");
-        lexer.lex();
+        lexer.lex()?;
     } else {
         println!("Compiling files:");
-        for file in files.iter() {
+        for file in files {
             println!("{:?} ", file);
-            let file: File = match File::open(file) {
-                Ok(f) => f,
-                Err(e) => return Err(CompilerError::FileIOError(file.to_path_buf(), e)),
-            };
-            lexer.new_file(file);
-            lexer.lex();
+            lexer.new_file(file)?;
+            lexer.lex()?;
         }
     }
 
