@@ -53,7 +53,7 @@ mod charreader_tests {
         {
             expected = "I am a group of chars\r\nthat should be consumable\r\n";
         }
-        #[cfg(not(target_os = ("windows")))]
+        #[cfg(not(target_os = "windows"))]
         {
             expected = "I am a group of chars\nthat should be consumable\n";
         }
