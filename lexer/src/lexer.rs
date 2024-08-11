@@ -1,10 +1,12 @@
 use std::{
     fs::File,
-    io::{stdin, stdout, BufRead, BufReader, Write},
+    io::{stdin, stdout, Write},
     path::PathBuf,
 };
 
 use common::{error::CompilerError, token::Token};
+
+use crate::char_reader::CharReader;
 
 pub struct Lexer {
     current_file: Option<PathBuf>,
@@ -36,11 +38,11 @@ impl Lexer {
     }
 
     fn lex_file(&mut self) -> Result<Vec<Token>, CompilerError> {
-        let file: Result<File, _> = match &self.current_file {
-            Some(f) => File::open(f),
+        let current_path: PathBuf = match &self.current_file {
+            Some(p) => p.to_path_buf(),
             None => return Err(CompilerError::NonExistentFileError),
         };
-        let file: File = match file {
+        let file: File = match File::open(current_path.clone()) {
             Ok(f) => f,
             Err(e) => {
                 return Err(CompilerError::FileIOError(
@@ -52,34 +54,15 @@ impl Lexer {
             }
         };
 
+        let mut char_reader: CharReader = CharReader::new(&file, &current_path)?;
+
         let tokens: Vec<Token> = Vec::new();
         let mut last_char: char = ' ';
+        let mut built_lexeme: String = String::new();
 
-        let reader: BufReader<File> = BufReader::new(file);
-        for line in reader.lines() {
-            let line = match line {
-                Ok(l) => l,
-                Err(e) => {
-                    return Err(CompilerError::UnreadableLineError(
-                        self.current_file
-                            .clone()
-                            .unwrap_or("Could not get file info...".into()),
-                        self.current_line_number,
-                        e,
-                    ))
-                }
-            };
-
-            self.current_line_number += 1;
-
-            let mut built_lexeme: String = String::new();
-
-            for c in line.trim().chars() {
-                last_char = c;
-                if c.is_alphabetic() {
-                    built_lexeme.push(c);
-                } else if c.is_ascii_digit() {
-                }
+        for c in char_reader {
+            while c.is_ascii_whitespace() {
+                continue;
             }
         }
 
