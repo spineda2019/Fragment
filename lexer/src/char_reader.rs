@@ -1,16 +1,16 @@
 use std::{fs::File, path::Path};
 
 use common::error::CompilerError;
-use memmap2::MmapMut;
+use memmap2::Mmap;
 
 pub struct CharReader {
-    file_map: MmapMut,
+    file_map: Mmap,
 }
 
 impl CharReader {
     pub fn new(file: &File, file_path: &Path) -> Result<CharReader, CompilerError> {
-        let map: Result<MmapMut, _> = unsafe { MmapMut::map_mut(file) };
-        let map: MmapMut = match map {
+        let map: Result<Mmap, _> = unsafe { Mmap::map(file) };
+        let map: Mmap = match map {
             Ok(m) => m,
             Err(e) => return Err(CompilerError::FileIOError(file_path.to_owned(), e)),
         };
