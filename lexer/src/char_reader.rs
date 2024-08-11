@@ -22,9 +22,18 @@ impl CharReader {
         })
     }
 
-    fn getchar(&mut self) -> Option<char> {
+    pub fn getchar(&mut self) -> Option<char> {
         if let Some(c) = self.file_map.get(self.byte_pointer) {
             self.byte_pointer += 1;
+            let character: char = char::from(*c);
+            return Some(character);
+        }
+
+        None
+    }
+
+    pub fn peekchar(&self) -> Option<char> {
+        if let Some(c) = self.file_map.get(self.byte_pointer + 1) {
             let character: char = char::from(*c);
             return Some(character);
         }
