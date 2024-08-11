@@ -5,6 +5,7 @@ use memmap2::Mmap;
 
 pub struct CharReader {
     file_map: Mmap,
+    byte_pointer: usize,
 }
 
 impl CharReader {
@@ -15,6 +16,9 @@ impl CharReader {
             Err(e) => return Err(CompilerError::FileIOError(file_path.to_owned(), e)),
         };
 
-        Ok(CharReader { file_map: map })
+        Ok(CharReader {
+            file_map: map,
+            byte_pointer: 0,
+        })
     }
 }
