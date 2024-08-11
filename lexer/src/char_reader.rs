@@ -47,7 +47,16 @@ mod charreader_tests {
 
     #[test]
     fn test_getchar() {
-        let expected: &str = "I am a group of chars\nthat should be consumable\n";
+        let expected: &str;
+
+        #[cfg(target_os = "windows")]
+        {
+            expected = "I am a group of chars\r\nthat should be consumable\r\n";
+        }
+        #[cfg(target_os = not("windows"))]
+        {
+            expected = "I am a group of chars\nthat should be consumable\n";
+        }
 
         let current_dir: Result<PathBuf, _> = current_dir();
         assert!(current_dir.is_ok());
