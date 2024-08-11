@@ -72,8 +72,14 @@ impl Lexer {
 
             self.current_line_number += 1;
 
+            let mut built_lexeme: String = String::new();
+
             for c in line.trim().chars() {
                 last_char = c;
+                if c.is_alphabetic() {
+                    built_lexeme.push(c);
+                } else if c.is_ascii_digit() {
+                }
             }
         }
 
