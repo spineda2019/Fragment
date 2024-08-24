@@ -7,7 +7,9 @@ pub enum CompilerError {
     FileIOError(PathBuf, std::io::Error),
     UnrecognizedFileError(PathBuf),
     UnreadableLineError(PathBuf, usize, std::io::Error),
+    UnreadableCharacterError(usize),
     NonExistentFileError,
+    InvalidNumberError(String),
 }
 
 impl CompilerError {
@@ -31,6 +33,15 @@ impl CompilerError {
             CompilerError::NonExistentFileError => String::from(
                 "The compiler tried reading a file while not holding an instance of one",
             ),
+            CompilerError::UnreadableCharacterError(char_number) => {
+                format!(
+                    "Encountered an unreadable character at file position: {}",
+                    char_number
+                )
+            }
+            CompilerError::InvalidNumberError(number) => {
+                format!("Invalid numeric format: {}", number)
+            }
         }
     }
 }
