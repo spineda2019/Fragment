@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use argparse::{ArgumentParser, Collect};
-use common::error::CompilerError;
+use common::{error::CompilerError, token::Token};
 use lexer::lexer::Lexer;
 
 fn main() -> Result<(), CompilerError> {
@@ -27,7 +27,11 @@ fn main() -> Result<(), CompilerError> {
         for file in files {
             println!("{:?} ", file);
             lexer.new_file(file)?;
-            lexer.lex()?;
+            let tokens: Vec<Token> = lexer.lex()?;
+            println!("We got tokens!!");
+            for token in tokens {
+                println!("\t{:#?}", token);
+            }
         }
     }
 
