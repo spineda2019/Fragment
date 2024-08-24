@@ -4,7 +4,10 @@ use std::{
     path::PathBuf,
 };
 
-use common::{error::CompilerError, token::Token};
+use common::{
+    error::CompilerError,
+    token::{Token, UnaryOperater},
+};
 
 use crate::char_reader::CharReader;
 
@@ -15,6 +18,8 @@ pub struct Lexer {
 }
 
 impl Lexer {
+    const UNARY_OPERATORS: [char; 4] = ['+', '-', '*', '/'];
+
     pub fn init() -> Lexer {
         Lexer {
             current_file: None,
@@ -122,10 +127,9 @@ impl Lexer {
 
                 Ok(Token::Eof)
             }
-            '+' => Ok(Token::PlusOperator),
-            '-' => Ok(Token::MinusOperator),
-            '*' => Ok(Token::MultiplicationOperator),
-            '/' => Ok(Token::DivisionOperator),
+            c if Self::UNARY_OPERATORS.contains(&c) => {
+                Ok(Token::UnaryOperator(UnaryOperater::new(c)?))
+            }
             unknown => Ok(Token::Unknown(unknown)),
         }
     }
