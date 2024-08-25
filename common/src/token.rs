@@ -6,7 +6,7 @@ pub enum Token {
     Def,
     Extern,
     Identifier(String),
-    F64Literal(i64),
+    F64Literal(f64),
     UnaryOperator(UnaryOperater),
     DivisionOperator,
     Unknown(char),
