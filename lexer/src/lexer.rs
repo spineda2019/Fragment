@@ -1,4 +1,5 @@
 use std::{
+    collections::VecDeque,
     fs::File,
     io::{stdin, stdout, Write},
     path::PathBuf,
@@ -57,7 +58,7 @@ impl Lexer {
             }
         }
 
-        match built_lexeme.parse::<i64>() {
+        match built_lexeme.parse::<f64>() {
             Ok(n) => Ok(Token::F64Literal(n)),
             Err(_) => todo!(),
         }
@@ -134,7 +135,7 @@ impl Lexer {
         }
     }
 
-    fn lex_file(&mut self) -> Result<Vec<Token>, CompilerError> {
+    fn lex_file(&mut self) -> Result<VecDeque<Token>, CompilerError> {
         let current_path: PathBuf = match &self.current_file {
             Some(p) => p.to_path_buf(),
             None => return Err(CompilerError::NonExistentFileError),
@@ -153,16 +154,16 @@ impl Lexer {
 
         let mut char_reader: CharReader = CharReader::new(&file, &current_path)?;
 
-        let mut tokens: Vec<Token> = Vec::new();
+        let mut tokens: VecDeque<Token> = VecDeque::new();
         loop {
             let token: Token = self.get_token(&mut char_reader)?;
             match token {
                 Token::Eof => {
-                    tokens.push(token);
+                    tokens.push_back(token);
                     break;
                 }
                 _ => {
-                    tokens.push(token);
+                    tokens.push_back(token);
                     continue;
                 }
             };
@@ -171,7 +172,7 @@ impl Lexer {
         Ok(tokens)
     }
 
-    fn lex_stdin(&self) -> Result<Vec<Token>, CompilerError> {
+    fn lex_stdin(&self) -> Result<VecDeque<Token>, CompilerError> {
         let mut line: String = String::new();
         loop {
             print!("Fragment REPL >> ");
@@ -183,7 +184,7 @@ impl Lexer {
         }
     }
 
-    pub fn lex(&mut self) -> Result<Vec<Token>, CompilerError> {
+    pub fn lex(&mut self) -> Result<VecDeque<Token>, CompilerError> {
         match self.current_file {
             Some(_) => self.lex_file(),
             None => self.lex_stdin(),

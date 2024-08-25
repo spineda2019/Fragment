@@ -1,8 +1,9 @@
-use std::path::PathBuf;
+use std::{collections::VecDeque, path::PathBuf};
 
 use argparse::{ArgumentParser, Collect};
 use common::{error::CompilerError, token::Token};
 use lexer::lexer::Lexer;
+use parser::ast::Ast;
 
 fn main() -> Result<(), CompilerError> {
     let mut files: Vec<PathBuf> = Vec::new();
@@ -27,11 +28,12 @@ fn main() -> Result<(), CompilerError> {
         for file in files {
             println!("{:?} ", file);
             lexer.new_file(file)?;
-            let tokens: Vec<Token> = lexer.lex()?;
+            let tokens: VecDeque<Token> = lexer.lex()?;
             println!("We got tokens!!");
-            for token in tokens {
+            for token in tokens.iter() {
                 println!("\t{:#?}", token);
             }
+            let ast: Ast = Ast::new(tokens);
         }
     }
 
