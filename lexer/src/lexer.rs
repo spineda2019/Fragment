@@ -7,7 +7,7 @@ use std::{
 
 use common::{
     error::CompilerError,
-    token::{Token, UnaryOperater},
+    token::{SimpleBinaryOperater, Token},
 };
 
 use crate::char_reader::CharReader;
@@ -19,7 +19,7 @@ pub struct Lexer {
 }
 
 impl Lexer {
-    const UNARY_OPERATORS: [char; 4] = ['+', '-', '*', '/'];
+    const SIMPLE_BINARY_OPERATORS: [char; 6] = ['+', '-', '*', '/', '<', '>'];
 
     pub fn init() -> Lexer {
         Lexer {
@@ -50,9 +50,9 @@ impl Lexer {
         reader: &mut CharReader,
         built_lexeme: &mut String,
     ) -> Result<Token, CompilerError> {
-        while let Some(c) = reader.getchar() {
+        while let Some(c) = reader.preview_char() {
             if c.is_ascii_digit() || c == '.' {
-                built_lexeme.push(c);
+                built_lexeme.push(reader.getchar().unwrap());
             } else {
                 break;
             }
@@ -60,7 +60,7 @@ impl Lexer {
 
         match built_lexeme.parse::<f64>() {
             Ok(n) => Ok(Token::F64Literal(n)),
-            Err(_) => todo!(),
+            Err(_) => Err(CompilerError::ExpectedNumberError),
         }
     }
 
@@ -69,9 +69,9 @@ impl Lexer {
         reader: &mut CharReader,
         built_lexeme: &mut String,
     ) -> Result<Token, CompilerError> {
-        while let Some(c) = reader.getchar() {
+        while let Some(c) = reader.preview_char() {
             if c.is_ascii_alphabetic() {
-                built_lexeme.push(c);
+                built_lexeme.push(reader.getchar().unwrap());
                 continue;
             } else {
                 break;
@@ -86,7 +86,7 @@ impl Lexer {
     }
 
     fn get_token(&mut self, reader: &mut CharReader) -> Result<Token, CompilerError> {
-        let mut last_char: char = ' ';
+        let last_char: char;
 
         loop {
             match reader.getchar() {
@@ -94,9 +94,10 @@ impl Lexer {
                     if c == '\n' {
                         self.current_line_number += 1;
                     }
-                    last_char = c;
                     continue;
                 }
+                Some('(') => return Ok(Token::LeftParenthesis),
+                Some(')') => return Ok(Token::RightParenthesis),
                 Some(notspace) => {
                     last_char = notspace;
                     break;
@@ -128,8 +129,8 @@ impl Lexer {
 
                 Ok(Token::Eof)
             }
-            c if Self::UNARY_OPERATORS.contains(&c) => {
-                Ok(Token::UnaryOperator(UnaryOperater::new(c)?))
+            c if Self::SIMPLE_BINARY_OPERATORS.contains(&c) => {
+                Ok(Token::SimpleBinaryOperator(SimpleBinaryOperater::new(c)?))
             }
             unknown => Ok(Token::Unknown(unknown)),
         }
