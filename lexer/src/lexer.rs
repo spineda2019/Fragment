@@ -1,6 +1,5 @@
 use std::{
     collections::VecDeque,
-    fs::File,
     io::{stdin, stdout, Write},
     path::PathBuf,
 };
@@ -13,9 +12,8 @@ use common::{
 use crate::char_reader::CharReader;
 
 pub struct Lexer {
-    current_file: Option<PathBuf>,
+    current_char_reader: Option<CharReader>,
     current_line_number: usize,
-    current_character_position: usize,
 }
 
 impl Lexer {
@@ -23,10 +21,16 @@ impl Lexer {
 
     pub fn init() -> Lexer {
         Lexer {
-            current_file: None,
+            current_char_reader: None,
             current_line_number: 0,
-            current_character_position: 0,
         }
+    }
+
+    pub fn new(file: PathBuf) -> Result<Lexer, CompilerError> {
+        Ok(Lexer {
+            current_char_reader: Some(CharReader::new(file)?),
+            current_line_number: 0,
+        })
     }
 
     pub fn new_file(&mut self, file: PathBuf) -> Result<(), CompilerError> {
@@ -40,16 +44,17 @@ impl Lexer {
             }
         };
 
-        self.current_file = Some(file);
+        self.current_char_reader = Some(CharReader::new(file)?);
         self.current_line_number = 0;
         Ok(())
     }
 
-    fn collect_number(
-        &mut self,
-        reader: &mut CharReader,
-        built_lexeme: &mut String,
-    ) -> Result<Token, CompilerError> {
+    fn collect_number(&mut self, built_lexeme: &mut String) -> Result<Token, CompilerError> {
+        let reader: &mut CharReader = match &mut self.current_char_reader {
+            Some(r) => r,
+            None => return Err(CompilerError::NonExistentFileError),
+        };
+
         while let Some(c) = reader.preview_char() {
             if c.is_ascii_digit() || c == '.' {
                 built_lexeme.push(reader.getchar().unwrap());
@@ -64,11 +69,12 @@ impl Lexer {
         }
     }
 
-    fn collect_identifier(
-        &mut self,
-        reader: &mut CharReader,
-        built_lexeme: &mut String,
-    ) -> Result<Token, CompilerError> {
+    fn collect_identifier(&mut self, built_lexeme: &mut String) -> Result<Token, CompilerError> {
+        let reader: &mut CharReader = match &mut self.current_char_reader {
+            Some(r) => r,
+            None => return Err(CompilerError::NonExistentFileError),
+        };
+
         while let Some(c) = reader.preview_char() {
             if c.is_ascii_alphabetic() {
                 built_lexeme.push(reader.getchar().unwrap());
@@ -85,8 +91,13 @@ impl Lexer {
         };
     }
 
-    fn get_token(&mut self, reader: &mut CharReader) -> Result<Token, CompilerError> {
+    pub fn get_token(&mut self) -> Result<Token, CompilerError> {
         let last_char: char;
+
+        let reader: &mut CharReader = match &mut self.current_char_reader {
+            Some(r) => r,
+            None => return Err(CompilerError::NonExistentFileError),
+        };
 
         loop {
             match reader.getchar() {
@@ -113,17 +124,17 @@ impl Lexer {
         match last_char {
             character if character.is_ascii_alphabetic() => {
                 built_lexeme.push(character);
-                self.collect_identifier(reader, &mut built_lexeme)
+                self.collect_identifier(&mut built_lexeme)
             }
             digit if digit.is_ascii_digit() || digit == '.' => {
                 built_lexeme.push(digit);
-                self.collect_number(reader, &mut built_lexeme)
+                self.collect_number(&mut built_lexeme)
             }
             '#' => {
                 while let Some(c) = reader.getchar() {
                     if c == '\n' || c == '\r' {
                         self.current_line_number += 1;
-                        return self.get_token(reader);
+                        return self.get_token();
                     }
                 }
 
@@ -137,27 +148,9 @@ impl Lexer {
     }
 
     fn lex_file(&mut self) -> Result<VecDeque<Token>, CompilerError> {
-        let current_path: PathBuf = match &self.current_file {
-            Some(p) => p.to_path_buf(),
-            None => return Err(CompilerError::NonExistentFileError),
-        };
-        let file: File = match File::open(current_path.clone()) {
-            Ok(f) => f,
-            Err(e) => {
-                return Err(CompilerError::FileIOError(
-                    self.current_file
-                        .clone()
-                        .unwrap_or("Could not get file info...".into()),
-                    e,
-                ))
-            }
-        };
-
-        let mut char_reader: CharReader = CharReader::new(&file, &current_path)?;
-
         let mut tokens: VecDeque<Token> = VecDeque::new();
         loop {
-            let token: Token = self.get_token(&mut char_reader)?;
+            let token: Token = self.get_token()?;
             match token {
                 Token::Eof => {
                     tokens.push_back(token);
@@ -186,7 +179,7 @@ impl Lexer {
     }
 
     pub fn lex(&mut self) -> Result<VecDeque<Token>, CompilerError> {
-        match self.current_file {
+        match self.current_char_reader {
             Some(_) => self.lex_file(),
             None => self.lex_stdin(),
         }

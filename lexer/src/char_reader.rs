@@ -1,4 +1,4 @@
-use std::{fs::File, path::Path};
+use std::{fs::File, path::PathBuf};
 
 use common::error::CompilerError;
 use memmap2::Mmap;
@@ -6,19 +6,25 @@ use memmap2::Mmap;
 pub struct CharReader {
     file_map: Mmap,
     byte_pointer: usize,
+    current_file: PathBuf,
 }
 
 impl CharReader {
-    pub fn new(file: &File, file_path: &Path) -> Result<CharReader, CompilerError> {
-        let map: Result<Mmap, _> = unsafe { Mmap::map(file) };
+    pub fn new(file_path: PathBuf) -> Result<CharReader, CompilerError> {
+        let file: File = match File::open(&file_path) {
+            Ok(f) => f,
+            Err(e) => return Err(CompilerError::FileIOError(file_path, e)),
+        };
+        let map: Result<Mmap, _> = unsafe { Mmap::map(&file) };
         let map: Mmap = match map {
             Ok(m) => m,
-            Err(e) => return Err(CompilerError::FileIOError(file_path.to_owned(), e)),
+            Err(e) => return Err(CompilerError::FileIOError(file_path, e)),
         };
 
         Ok(CharReader {
             file_map: map,
             byte_pointer: 0,
+            current_file: file_path,
         })
     }
 
@@ -97,9 +103,7 @@ mod charreader_tests {
         let file: Result<File, _> = File::open(current_dir);
         assert!(file.is_ok());
 
-        let file: File = file.unwrap();
-
-        let reader: Result<CharReader, CompilerError> = CharReader::new(&file, &filepath);
+        let reader: Result<CharReader, CompilerError> = CharReader::new(filepath);
         assert!(reader.is_ok());
 
         let mut reader: CharReader = reader.unwrap();
@@ -141,8 +145,7 @@ mod charreader_tests {
         let file: Result<File, _> = File::open(current_dir.clone());
         assert!(file.is_ok());
 
-        let file: File = file.unwrap();
-        let reader: Result<CharReader, CompilerError> = CharReader::new(&file, &current_dir);
+        let reader: Result<CharReader, CompilerError> = CharReader::new(current_dir);
 
         assert!(reader.is_ok());
 

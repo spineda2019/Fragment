@@ -1,7 +1,7 @@
-use std::{collections::VecDeque, path::PathBuf};
+use std::path::PathBuf;
 
 use argparse::{ArgumentParser, Collect};
-use common::{error::CompilerError, token::Token};
+use common::error::CompilerError;
 use lexer::lexer::Lexer;
 use parser::ast::Ast;
 
@@ -26,14 +26,9 @@ fn main() -> Result<(), CompilerError> {
     } else {
         println!("Compiling files:");
         for file in files {
-            println!("{:?} ", file);
-            lexer.new_file(file)?;
-            let tokens: VecDeque<Token> = lexer.lex()?;
-            println!("We got tokens!!");
-            for token in tokens.iter() {
-                println!("\t{:#?}", token);
-            }
-            let ast: Ast = Ast::new(tokens);
+            let lexer: Lexer = Lexer::new(file)?;
+            let mut ast: Ast = Ast::new(lexer);
+            ast.parse_tokens()?;
         }
     }
 
