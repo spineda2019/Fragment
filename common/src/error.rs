@@ -1,5 +1,5 @@
 use std::{
-    fmt::{Debug, Display},
+    fmt::{format, Debug, Display},
     path::PathBuf,
 };
 
@@ -11,6 +11,8 @@ pub enum CompilerError {
     NonExistentFileError,
     InvalidNumberError(String),
     ExpectedNumberError,
+    ExpectedExpressionError,
+    InvalidOperaterCharacter(char),
 }
 
 impl CompilerError {
@@ -45,6 +47,12 @@ impl CompilerError {
             }
             CompilerError::ExpectedNumberError => {
                 String::from("Expected to find number expression, but none were found")
+            }
+            CompilerError::ExpectedExpressionError => {
+                String::from("An expression was expected, but not found...")
+            }
+            CompilerError::InvalidOperaterCharacter(c) => {
+                format!("{} is not a valid operater character", c)
             }
         }
     }
