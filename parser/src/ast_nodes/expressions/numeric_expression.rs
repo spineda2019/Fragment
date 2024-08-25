@@ -1,6 +1,6 @@
 use crate::ast_node::ASTNode;
 
-struct NumericExpression {
+pub struct NumericExpression {
     value: f64,
 }
 
