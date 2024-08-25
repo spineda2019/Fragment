@@ -7,3 +7,4 @@ edition = "2021"
 argparse = "0.2.2"
 lexer = { path = "../lexer" }
 common = { path = "../common" }
+parser = { path = "../parser" }
