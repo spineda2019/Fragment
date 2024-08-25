@@ -46,15 +46,6 @@ impl CharReader {
 
         None
     }
-
-    pub fn peekchar(&self) -> Option<char> {
-        if let Some(c) = self.file_map.get(self.byte_pointer + 1) {
-            let character: char = char::from(*c);
-            return Some(character);
-        }
-
-        None
-    }
 }
 
 impl Iterator for CharReader {

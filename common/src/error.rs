@@ -1,5 +1,5 @@
 use std::{
-    fmt::{format, Debug, Display},
+    fmt::{Debug, Display},
     path::PathBuf,
 };
 
