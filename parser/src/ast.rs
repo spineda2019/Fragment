@@ -19,4 +19,13 @@ impl Ast {
             _ => Err(CompilerError::ExpectedNumberError),
         }
     }
+
+    pub fn parse_parenthesis_expression(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
+        let current_token: Token = match self.tokens.pop_front() {
+            Some(t) => t,
+            None => return Err(CompilerError::ExpectedExpressionError),
+        };
+
+        todo!()
+    }
 }

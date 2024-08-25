@@ -1,16 +1,16 @@
-use common::token::UnaryOperater;
+use common::token::SimpleBinaryOperater;
 
 use crate::ast_node::ASTNode;
 
 struct BinaryExpression {
-    operator: UnaryOperater,
+    operator: SimpleBinaryOperater,
     left_hand_side: Box<dyn ASTNode>,
     right_hand_side: Box<dyn ASTNode>,
 }
 
 impl BinaryExpression {
     pub fn new(
-        operator: UnaryOperater,
+        operator: SimpleBinaryOperater,
         left_hand_side: Box<dyn ASTNode>,
         right_hand_side: Box<dyn ASTNode>,
     ) -> Self {
