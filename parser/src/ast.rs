@@ -1,5 +1,22 @@
-use crate::ast_node::ASTNode;
+use std::collections::VecDeque;
 
-struct Ast {
-    node: Box<dyn ASTNode>,
+use common::{error::CompilerError, token::Token};
+
+use crate::{ast_node::ASTNode, ast_nodes::expressions::numeric_expression::NumericExpression};
+
+pub struct Ast {
+    tokens: VecDeque<Token>,
+}
+
+impl Ast {
+    pub fn new(tokens: VecDeque<Token>) -> Self {
+        Self { tokens }
+    }
+
+    pub fn parse_number_expression(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
+        match self.tokens.pop_front() {
+            Some(Token::F64Literal(number)) => Ok(Box::new(NumericExpression::new(number))),
+            _ => Err(CompilerError::ExpectedNumberError),
+        }
+    }
 }
