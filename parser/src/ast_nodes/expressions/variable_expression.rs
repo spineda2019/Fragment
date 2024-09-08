@@ -1,6 +1,6 @@
 use crate::ast_node::ASTNode;
 
-struct VariableExpression {
+pub struct VariableExpression {
     name: String,
 }
 

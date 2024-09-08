@@ -1,2 +1,2 @@
 pub mod expressions;
-mod functions;
+pub mod functions;

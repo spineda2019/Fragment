@@ -1,4 +1,4 @@
-mod binary_expression;
-mod function_call_expression;
+pub mod binary_expression;
+pub mod function_call_expression;
 pub mod numeric_expression;
-mod variable_expression;
+pub mod variable_expression;

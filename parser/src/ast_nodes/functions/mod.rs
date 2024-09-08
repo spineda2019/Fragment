@@ -1,2 +1,2 @@
-mod function_definition;
-mod function_prototype;
+pub mod function_definition;
+pub mod function_prototype;
