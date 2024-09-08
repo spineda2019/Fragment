@@ -5,7 +5,7 @@ use crate::{
     ast_node::ASTNode,
     ast_nodes::{
         expressions::numeric_expression::NumericExpression,
-        expressions::numeric_expression::VariableExpression,
+        expressions::variable_expression::VariableExpression,
         functions::function_prototype::FunctionPrototype,
     },
 };
@@ -38,20 +38,18 @@ impl Ast {
 
     fn parse_identifier(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
         // current token should be an identifier
-        if let Token::Identifier(id) = self.current_token {
-            self.eat_current_token_and_advance_lexer()?;
+        match &self.current_token {
+            Token::Identifier(id) => {
+                self.eat_current_token_and_advance_lexer()?;
 
-            if let Token::LeftParenthesis = self.current_token {
-                todo!();
-                return Ok(Box::new(VariableExpression::new(id)));
+                todo!()
             }
-
-            todo!()
-        } else {
-            return Err(CompilerError::UnexpectedTokenError(
-                self.current_token.clone(),
-            ));
-        }
+            _ => {
+                return Err(CompilerError::UnexpectedTokenError(
+                    self.current_token.clone(),
+                ));
+            }
+        };
     }
 
     fn parse_primary(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
