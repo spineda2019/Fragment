@@ -1,7 +1,9 @@
 use std::{
-    fmt::{Debug, Display},
+    fmt::{format, Debug, Display},
     path::PathBuf,
 };
+
+use crate::token::Token;
 
 pub enum CompilerError {
     FileIOError(PathBuf, std::io::Error),
@@ -13,6 +15,8 @@ pub enum CompilerError {
     ExpectedNumberError,
     ExpectedExpressionError,
     InvalidOperaterCharacter(char),
+    FunctionNameNotFound,
+    UnexpectedTokenError(Token),
 }
 
 impl CompilerError {
@@ -53,6 +57,12 @@ impl CompilerError {
             }
             CompilerError::InvalidOperaterCharacter(c) => {
                 format!("{} is not a valid operater character", c)
+            }
+            CompilerError::FunctionNameNotFound => {
+                String::from("Expected a function name in function definition...")
+            }
+            CompilerError::UnexpectedTokenError(token) => {
+                format!("Encountered unexpected token: {:?}", token)
             }
         }
     }

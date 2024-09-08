@@ -12,9 +12,11 @@ pub enum Token {
     Unknown(char),
     LeftParenthesis,
     RightParenthesis,
+    SemiColon,
+    BeginningOfFile,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SimpleBinaryOperater {
     Addition,
     Subtraction,
@@ -22,6 +24,24 @@ pub enum SimpleBinaryOperater {
     Division,
     LessThan,
     GreaterThan,
+}
+
+impl Clone for Token {
+    fn clone(&self) -> Self {
+        match self {
+            Token::Eof => Token::Eof,
+            Token::Def => Token::Def,
+            Token::Extern => Token::Extern,
+            Token::Identifier(s) => Token::Identifier(s.clone()),
+            Token::F64Literal(f) => Token::F64Literal(*f),
+            Token::SimpleBinaryOperator(op) => Token::SimpleBinaryOperator(op.clone()),
+            Token::Unknown(c) => Token::Unknown(*c),
+            Token::LeftParenthesis => Token::LeftParenthesis,
+            Token::RightParenthesis => Token::RightParenthesis,
+            Token::SemiColon => Token::SemiColon,
+            Token::BeginningOfFile => Token::BeginningOfFile,
+        }
+    }
 }
 
 impl Debug for Token {
@@ -36,8 +56,10 @@ impl Debug for Token {
                 format!("Token: Simple binary operator -> {}", op.to_char())
             }
             Token::Unknown(u) => format!("Unknown token: {}", u),
-            Token::LeftParenthesis => String::from("Token: ("),
-            Token::RightParenthesis => String::from("Token: )"),
+            Token::LeftParenthesis => String::from("Token: Left Parenthesis -> ("),
+            Token::RightParenthesis => String::from("Token: Right Parenthesis -> )"),
+            Token::SemiColon => String::from("Token: Semicolon -> ;"),
+            Token::BeginningOfFile => String::from("Beginning of file"),
         };
         write!(f, "{}", message)
     }
