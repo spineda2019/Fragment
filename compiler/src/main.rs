@@ -24,7 +24,7 @@ fn main() -> Result<(), CompilerError> {
         println!("Welcome to the Fragment REPL!");
         lexer.lex()?;
     } else {
-        println!("Compiling files:");
+        println!("Compiling files: {:?}", &files);
         for file in files {
             let lexer: Lexer = Lexer::new(file)?;
             let mut ast: Ast = Ast::new(lexer);
