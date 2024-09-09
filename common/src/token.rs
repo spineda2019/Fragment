@@ -2,6 +2,7 @@ use std::fmt::Debug;
 
 use crate::error::CompilerError;
 
+#[derive(PartialEq)]
 pub enum Token {
     Eof,
     Def,
@@ -14,9 +15,10 @@ pub enum Token {
     RightParenthesis,
     SemiColon,
     BeginningOfFile,
+    Comma,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum SimpleBinaryOperater {
     Addition,
     Subtraction,
@@ -39,6 +41,7 @@ impl Clone for Token {
             Token::LeftParenthesis => Token::LeftParenthesis,
             Token::RightParenthesis => Token::RightParenthesis,
             Token::SemiColon => Token::SemiColon,
+            Token::Comma => Token::Comma,
             Token::BeginningOfFile => Token::BeginningOfFile,
         }
     }
@@ -60,6 +63,7 @@ impl Debug for Token {
             Token::RightParenthesis => String::from("Token: Right Parenthesis -> )"),
             Token::SemiColon => String::from("Token: Semicolon -> ;"),
             Token::BeginningOfFile => String::from("Beginning of file"),
+            Token::Comma => String::from("Token: Comma -> ,"),
         };
         write!(f, "{}", message)
     }

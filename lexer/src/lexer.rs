@@ -110,6 +110,7 @@ impl Lexer {
                 Some('(') => return Ok(Token::LeftParenthesis),
                 Some(')') => return Ok(Token::RightParenthesis),
                 Some(';') => return Ok(Token::SemiColon),
+                Some(',') => return Ok(Token::Comma),
                 Some(notspace) => {
                     last_char = notspace;
                     break;
