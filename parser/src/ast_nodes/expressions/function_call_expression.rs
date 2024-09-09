@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::ast_node::ASTNode;
 
 struct FunctionCallExpression {
@@ -14,4 +16,30 @@ impl FunctionCallExpression {
     }
 }
 
-impl ASTNode for FunctionCallExpression {}
+impl Display for FunctionCallExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut args_string: String = String::with_capacity(self.args.len());
+        for arg in &self.args {
+            args_string = format!("{} {}", args_string, arg);
+        }
+
+        write!(
+            f,
+            "FunctionCallExpression calle: {}\nFunctionCallExpression args: {}",
+            self.calle, args_string
+        )
+    }
+}
+
+impl ASTNode for FunctionCallExpression {
+    fn print(&self) {
+        let mut args_string: String = String::with_capacity(self.args.len());
+        for arg in &self.args {
+            args_string = format!("{} {}", args_string, arg);
+        }
+
+        println!("Node: FunctionCallExpression");
+        println!("FunctionCallExpression calle: {}", self.calle);
+        println!("FunctionCallExpression args: {}", args_string);
+    }
+}
