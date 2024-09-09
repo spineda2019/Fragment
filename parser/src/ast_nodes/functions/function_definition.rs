@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::ast_node::ASTNode;
 
 use super::function_prototype::FunctionPrototype;
@@ -13,4 +15,20 @@ impl Function {
     }
 }
 
-impl ASTNode for Function {}
+impl Display for Function {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Function Prototype: {}\nFunction Body: {}",
+            self.prototype, self.body
+        )
+    }
+}
+
+impl ASTNode for Function {
+    fn print(&self) {
+        println!("Node: Function");
+        println!("Prototype: {}", self.prototype);
+        println!("body: {}", self.body);
+    }
+}
