@@ -10,13 +10,13 @@ use crate::{
     },
 };
 
-pub struct Ast {
-    lexer: Lexer,
+pub struct Ast<'a> {
+    lexer: &'a mut Lexer,
     current_token: Token,
 }
 
-impl Ast {
-    pub fn new(lexer: Lexer) -> Self {
+impl<'a> Ast<'a> {
+    pub fn new(lexer: &'a mut Lexer) -> Self {
         Self {
             lexer,
             current_token: Token::BeginningOfFile,
@@ -38,18 +38,41 @@ impl Ast {
 
     fn parse_identifier(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
         // current token should be an identifier
-        match &self.current_token {
-            Token::Identifier(id) => {
-                self.eat_current_token_and_advance_lexer()?;
-
-                todo!()
-            }
+        let id_string: String = match &self.current_token {
+            Token::Identifier(id) => id.to_owned(),
             _ => {
                 return Err(CompilerError::UnexpectedTokenError(
                     self.current_token.clone(),
                 ));
             }
         };
+
+        self.eat_current_token_and_advance_lexer()?;
+
+        if let Token::LeftParenthesis = &self.current_token {
+            self.eat_current_token_and_advance_lexer()?; // eat '('
+            let mut expressions: Vec<Box<dyn ASTNode>> = Vec::new();
+
+            if self.current_token == Token::RightParenthesis {
+                loop {
+                    expressions.push(self.parse_expression()?);
+
+                    if self.current_token == Token::RightParenthesis {
+                        break;
+                    }
+
+                    if self.current_token != Token::Comma {
+                        return Err(CompilerError::UnexpectedTokenError(
+                            self.current_token.clone(),
+                        ));
+                    }
+                }
+            }
+        } else {
+            return Ok(Box::new(VariableExpression::new(&id_string)));
+        }
+
+        todo!()
     }
 
     fn parse_primary(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {

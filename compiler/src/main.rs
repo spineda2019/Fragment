@@ -32,7 +32,7 @@ fn main() -> Result<(), CompilerError> {
         println!("Only lexing files...");
 
         for file in files {
-            let mut lexer: Lexer = Lexer::new(file)?;
+            lexer.new_file(file)?;
             let tokens = lexer.lex()?;
             for token in tokens {
                 println!("{:?}", token);
@@ -44,8 +44,8 @@ fn main() -> Result<(), CompilerError> {
     } else {
         println!("Compiling files: {:?}", &files);
         for file in files {
-            let lexer: Lexer = Lexer::new(file)?;
-            let mut ast: Ast = Ast::new(lexer);
+            lexer.new_file(file)?;
+            let mut ast: Ast = Ast::new(&mut lexer);
             ast.parse_tokens()?;
         }
     }
