@@ -90,9 +90,9 @@ impl<'a> Ast<'a> {
     }
 
     fn parse_parenthesis_expression(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
-        self.current_token = self.lexer.get_token()?;
-
         if let Token::LeftParenthesis = self.current_token {
+            self.eat_current_token_and_advance_lexer()?;
+
             let v: Box<dyn ASTNode> = self.parse_expression()?;
 
             // should now be a ')' from parse_expression call
@@ -118,21 +118,53 @@ impl<'a> Ast<'a> {
 
     fn handle_top_level_expression(&self) {}
 
-    fn parse_prototype(&self) -> Result<Box<FunctionPrototype>, CompilerError> {
-        if let Token::Identifier(_) = self.current_token {
-            todo!()
+    fn parse_prototype(&mut self) -> Result<Box<FunctionPrototype>, CompilerError> {
+        if let Token::Identifier(id) = &self.current_token {
+            let function_name: String = id.to_string();
+
+            self.eat_current_token_and_advance_lexer()?;
+
+            if self.current_token != Token::LeftParenthesis {
+                return Err(CompilerError::UnexpectedTokenError(
+                    self.current_token.clone(),
+                ));
+            }
+
+            self.eat_current_token_and_advance_lexer()?;
+
+            let mut args: Vec<String> = Vec::new();
+            while let Token::Identifier(id) = &self.current_token {
+                args.push(id.to_string());
+                self.eat_current_token_and_advance_lexer()?;
+            }
+
+            if self.current_token != Token::RightParenthesis {
+                return Err(CompilerError::UnexpectedTokenError(
+                    self.current_token.clone(),
+                ));
+            }
+
+            self.eat_current_token_and_advance_lexer()?;
+            Ok(Box::new(FunctionPrototype::new(&function_name, args)))
         } else {
-            return Err(CompilerError::FunctionNameNotFound);
+            Err(CompilerError::FunctionNameNotFound)
         }
     }
 
-    fn handle_definition(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
-        self.current_token = self.lexer.get_token()?;
+    fn parse_definition(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
         todo!()
+    }
+
+    fn handle_definition(&mut self) -> Result<(), CompilerError> {
+        let defintion_node = self.parse_definition()?;
+        defintion_node.print();
+
+        Ok(())
     }
 
     pub fn parse_tokens(&mut self) -> Result<(), CompilerError> {
         println!("In the parsing tokens stage!");
+        self.eat_current_token_and_advance_lexer()?; // eat the beginning of file token
 
         loop {
             println!("\t{:#?}", self.current_token);
