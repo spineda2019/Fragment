@@ -4,7 +4,7 @@ use crate::ast_node::ASTNode;
 
 use super::function_prototype::FunctionPrototype;
 
-struct Function {
+pub struct Function {
     prototype: Box<FunctionPrototype>,
     body: Box<dyn ASTNode>,
 }
