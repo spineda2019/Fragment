@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::ast_node::ASTNode;
 
-struct FunctionCallExpression {
+pub struct FunctionCallExpression {
     calle: String,
     args: Vec<Box<dyn ASTNode>>,
 }

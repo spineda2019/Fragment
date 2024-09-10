@@ -5,6 +5,7 @@ use crate::{
     ast_node::ASTNode,
     ast_nodes::{
         expressions::{
+            function_call_expression::FunctionCallExpression,
             numeric_expression::NumericExpression, variable_expression::VariableExpression,
         },
         functions::{function_definition::Function, function_prototype::FunctionPrototype},
@@ -49,10 +50,10 @@ impl<'a> Ast<'a> {
         };
 
         self.eat_current_token_and_advance_lexer()?;
+        let mut expressions: Vec<Box<dyn ASTNode>> = Vec::new();
 
         if let Token::LeftParenthesis = &self.current_token {
             self.eat_current_token_and_advance_lexer()?; // eat '('
-            let mut expressions: Vec<Box<dyn ASTNode>> = Vec::new();
 
             if self.current_token == Token::RightParenthesis {
                 loop {
@@ -73,7 +74,11 @@ impl<'a> Ast<'a> {
             return Ok(Box::new(VariableExpression::new(&id_string)));
         }
 
-        todo!()
+        self.eat_current_token_and_advance_lexer()?;
+        Ok(Box::new(FunctionCallExpression::new(
+            &id_string,
+            expressions,
+        )))
     }
 
     fn parse_primary(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
