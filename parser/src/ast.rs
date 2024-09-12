@@ -1,11 +1,15 @@
-use common::{error::CompilerError, operator_precedence::OperatorPrecedence, token::Token};
+use common::{
+    error::CompilerError,
+    operator_precedence::OperatorPrecedence,
+    token::{SimpleBinaryOperater, Token},
+};
 use lexer::lexer::Lexer;
 
 use crate::{
     ast_node::ASTNode,
     ast_nodes::{
         expressions::{
-            function_call_expression::FunctionCallExpression,
+            binary_expression::BinaryExpression, function_call_expression::FunctionCallExpression,
             numeric_expression::NumericExpression, variable_expression::VariableExpression,
         },
         functions::{function_definition::Function, function_prototype::FunctionPrototype},
@@ -93,14 +97,36 @@ impl<'a> Ast<'a> {
     fn parse_binary_operation_rhs(
         &mut self,
         precedence: OperatorPrecedence,
-        lhs: Box<dyn ASTNode>,
+        mut lhs: Box<dyn ASTNode>,
     ) -> Result<Box<dyn ASTNode>, CompilerError> {
-        todo!()
+        loop {
+            let current_token_precedence: OperatorPrecedence =
+                OperatorPrecedence::new(&self.current_token);
+
+            if current_token_precedence.get_precedence() < precedence.get_precedence() {
+                return Ok(lhs);
+            }
+
+            let binary_operator: SimpleBinaryOperater =
+                SimpleBinaryOperater::from_token(&self.current_token)?;
+
+            self.eat_current_token_and_advance_lexer()?;
+
+            let rhs = self.parse_primary()?;
+
+            let next_precedence = OperatorPrecedence::new(&self.current_token);
+
+            if current_token_precedence.get_precedence() < next_precedence.get_precedence() {
+                todo!();
+            }
+
+            lhs = Box::new(BinaryExpression::new(binary_operator, lhs, rhs));
+        }
     }
 
     fn parse_expression(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
         let lhs: Box<dyn ASTNode> = self.parse_primary()?;
-        self.parse_binary_operation_rhs(OperatorPrecedence::new(0), lhs)
+        self.parse_binary_operation_rhs(OperatorPrecedence::from_number(0), lhs)
     }
 
     fn parse_parenthesis_expression(&mut self) -> Result<Box<dyn ASTNode>, CompilerError> {
@@ -128,9 +154,13 @@ impl<'a> Ast<'a> {
         }
     }
 
-    fn handle_extern(&self) {}
+    fn handle_extern(&self) {
+        todo!()
+    }
 
-    fn handle_top_level_expression(&self) {}
+    fn handle_top_level_expression(&self) {
+        todo!()
+    }
 
     fn parse_prototype(&mut self) -> Result<Box<FunctionPrototype>, CompilerError> {
         if let Token::Identifier(id) = &self.current_token {
