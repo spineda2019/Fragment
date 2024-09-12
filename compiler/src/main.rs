@@ -42,7 +42,7 @@ fn main() -> Result<(), CompilerError> {
         println!("Welcome to the Fragment REPL!");
         lexer.lex()?;
     } else {
-        println!("Compiling files: {:?}", &files);
+        println!("Compiling files: {:?}\n", &files);
         for file in files {
             lexer.new_file(file)?;
             let mut ast: Ast = Ast::new(&mut lexer);

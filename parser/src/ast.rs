@@ -216,7 +216,10 @@ impl<'a> Ast<'a> {
     }
 
     pub fn parse_tokens(&mut self) -> Result<(), CompilerError> {
-        println!("In the parsing tokens stage!");
+        println!("*******************************************************************************");
+        println!("*                         In the parsing tokens stage!                        *");
+        println!("*******************************************************************************");
+        println!(" ");
         self.eat_current_token_and_advance_lexer()?; // eat the beginning of file token
 
         loop {
