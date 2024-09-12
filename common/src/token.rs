@@ -82,6 +82,13 @@ impl SimpleBinaryOperater {
         }
     }
 
+    pub fn from_token(operator: &Token) -> Result<Self, CompilerError> {
+        match operator {
+            Token::SimpleBinaryOperator(o) => Ok(o.clone()),
+            _ => Err(CompilerError::InvalidOperaterCharacter(' ')),
+        }
+    }
+
     pub fn to_char(&self) -> char {
         match self {
             Self::Addition => '+',
