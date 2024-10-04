@@ -172,8 +172,25 @@ impl<'a> Ast<'a> {
         };
     }
 
-    fn handle_top_level_expression(&self) {
-        todo!()
+    fn parse_top_level_expression(&mut self) -> Result<Box<Function>, CompilerError> {
+        let expression = self.parse_expression()?;
+        let prototype: Box<FunctionPrototype> = Box::new(FunctionPrototype::new("", Vec::new()));
+        Ok(Box::new(Function::new(prototype, expression)))
+    }
+
+    fn handle_top_level_expression(&mut self) {
+        let parse_node = self.parse_top_level_expression();
+        match parse_node {
+            Ok(node) => {
+                println!(
+                    "Succesfully parsed top level expression! Here it is:\n{}",
+                    node
+                );
+            }
+            Err(e) => {
+                println!("Error parsing top level expression... error is:\n{}", e);
+            }
+        };
     }
 
     fn parse_prototype(&mut self) -> Result<Box<FunctionPrototype>, CompilerError> {
