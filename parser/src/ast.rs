@@ -105,22 +105,22 @@ impl<'a> Ast<'a> {
 
             if current_token_precedence.get_precedence() < precedence.get_precedence() {
                 return Ok(lhs);
+            } else {
+                let binary_operator: SimpleBinaryOperater =
+                    SimpleBinaryOperater::from_token(&self.current_token)?;
+
+                self.eat_current_token_and_advance_lexer()?;
+
+                let rhs = self.parse_primary()?;
+
+                let next_precedence = OperatorPrecedence::new(&self.current_token);
+
+                if current_token_precedence.get_precedence() < next_precedence.get_precedence() {
+                    todo!();
+                }
+
+                lhs = Box::new(BinaryExpression::new(binary_operator, lhs, rhs));
             }
-
-            let binary_operator: SimpleBinaryOperater =
-                SimpleBinaryOperater::from_token(&self.current_token)?;
-
-            self.eat_current_token_and_advance_lexer()?;
-
-            let rhs = self.parse_primary()?;
-
-            let next_precedence = OperatorPrecedence::new(&self.current_token);
-
-            if current_token_precedence.get_precedence() < next_precedence.get_precedence() {
-                todo!();
-            }
-
-            lhs = Box::new(BinaryExpression::new(binary_operator, lhs, rhs));
         }
     }
 
@@ -154,8 +154,22 @@ impl<'a> Ast<'a> {
         }
     }
 
-    fn handle_extern(&self) {
-        todo!()
+    fn parse_extern(&mut self) -> Result<Box<FunctionPrototype>, CompilerError> {
+        // eat extern token
+        self.eat_current_token_and_advance_lexer()?;
+        self.parse_prototype()
+    }
+
+    fn handle_extern(&mut self) {
+        let parse_node = self.parse_extern();
+        match parse_node {
+            Ok(node) => {
+                println!("Succesfully parsed extern! Here it is:\n{}", node);
+            }
+            Err(e) => {
+                println!("Error parsing extern... error is:\n{}", e);
+            }
+        };
     }
 
     fn handle_top_level_expression(&self) {
