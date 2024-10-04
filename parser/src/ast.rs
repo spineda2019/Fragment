@@ -160,16 +160,14 @@ impl<'a> Ast<'a> {
         self.parse_prototype()
     }
 
-    fn handle_extern(&mut self) {
-        let parse_node = self.parse_extern();
-        match parse_node {
-            Ok(node) => {
-                println!("Succesfully parsed extern! Here it is:\n{}", node);
-            }
-            Err(e) => {
-                println!("Error parsing extern... error is:\n{}", e);
-            }
-        };
+    fn handle_extern(&mut self) -> Result<(), CompilerError> {
+        let parse_node = self.parse_extern()?;
+        parse_node.print();
+        println!(
+            "Succesfully parsed definition! Current Token: {:?}",
+            self.current_token
+        );
+        Ok(())
     }
 
     fn parse_top_level_expression(&mut self) -> Result<Box<Function>, CompilerError> {
@@ -178,19 +176,14 @@ impl<'a> Ast<'a> {
         Ok(Box::new(Function::new(prototype, expression)))
     }
 
-    fn handle_top_level_expression(&mut self) {
-        let parse_node = self.parse_top_level_expression();
-        match parse_node {
-            Ok(node) => {
-                println!(
-                    "Succesfully parsed top level expression! Here it is:\n{}",
-                    node
-                );
-            }
-            Err(e) => {
-                println!("Error parsing top level expression... error is:\n{}", e);
-            }
-        };
+    fn handle_top_level_expression(&mut self) -> Result<(), CompilerError> {
+        let parse_node = self.parse_top_level_expression()?;
+        parse_node.print();
+        println!(
+            "Succesfully parsed definition! Current Token: {:?}",
+            self.current_token
+        );
+        Ok(())
     }
 
     fn parse_prototype(&mut self) -> Result<Box<FunctionPrototype>, CompilerError> {
@@ -242,6 +235,10 @@ impl<'a> Ast<'a> {
     fn handle_definition(&mut self) -> Result<(), CompilerError> {
         let defintion_node = self.parse_definition()?;
         defintion_node.print();
+        println!(
+            "Succesfully parsed definition! Current Token: {:?}",
+            self.current_token
+        );
 
         Ok(())
     }
@@ -263,8 +260,8 @@ impl<'a> Ast<'a> {
                 Token::Def => {
                     self.handle_definition()?;
                 }
-                Token::Extern => self.handle_extern(),
-                _ => self.handle_top_level_expression(),
+                Token::Extern => self.handle_extern()?,
+                _ => self.handle_top_level_expression()?,
             };
         }
 

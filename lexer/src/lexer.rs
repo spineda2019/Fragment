@@ -170,7 +170,7 @@ impl Lexer {
 
     fn lex_stdin(&self) -> Result<VecDeque<Token>, CompilerError> {
         let mut line: String = String::new();
-        let mut tokens: Vec<Token> = Vec::new();
+        let tokens: Vec<Token> = Vec::new();
         loop {
             print!("Fragment REPL >> ");
             line.clear();
@@ -178,6 +178,9 @@ impl Lexer {
             if stdin().read_line(&mut line).is_err() {
                 continue;
             } else {
+                for token in &tokens {
+                    println!("{:?}", token);
+                }
             }
         }
     }
