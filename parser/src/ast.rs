@@ -111,12 +111,15 @@ impl<'a> Ast<'a> {
 
                 self.eat_current_token_and_advance_lexer()?;
 
-                let rhs = self.parse_primary()?;
+                let mut rhs = self.parse_primary()?;
 
                 let next_precedence = OperatorPrecedence::new(&self.current_token);
 
                 if current_token_precedence.get_precedence() < next_precedence.get_precedence() {
-                    todo!();
+                    rhs = self.parse_binary_operation_rhs(
+                        OperatorPrecedence::increment_other(&current_token_precedence),
+                        rhs,
+                    )?;
                 }
 
                 lhs = Box::new(BinaryExpression::new(binary_operator, lhs, rhs));
@@ -190,6 +193,7 @@ impl<'a> Ast<'a> {
         if let Token::Identifier(id) = &self.current_token {
             let function_name: String = id.to_string();
 
+            // eat prototype name
             self.eat_current_token_and_advance_lexer()?;
 
             if self.current_token != Token::LeftParenthesis {
@@ -201,8 +205,9 @@ impl<'a> Ast<'a> {
             self.eat_current_token_and_advance_lexer()?;
 
             let mut args: Vec<String> = Vec::new();
-            while let Token::Identifier(id) = &self.current_token {
-                args.push(id.to_string());
+            while let Token::Identifier(arg) = &self.current_token {
+                println!("parse_protoype: Prototype arg found: {}\n", arg);
+                args.push(arg.to_string());
                 self.eat_current_token_and_advance_lexer()?;
             }
 
@@ -212,6 +217,7 @@ impl<'a> Ast<'a> {
                 ));
             }
 
+            // eat ) token
             self.eat_current_token_and_advance_lexer()?;
             Ok(Box::new(FunctionPrototype::new(&function_name, args)))
         } else {
@@ -225,7 +231,10 @@ impl<'a> Ast<'a> {
                 self.current_token.clone(),
             ));
         }
+
+        // eat Def token and expect func name
         self.eat_current_token_and_advance_lexer()?;
+
         let prototype: Box<FunctionPrototype> = self.parse_prototype()?;
         let definition_expression = self.parse_expression()?;
 
@@ -251,7 +260,9 @@ impl<'a> Ast<'a> {
         self.eat_current_token_and_advance_lexer()?; // eat the beginning of file token
 
         loop {
-            println!("\t{:#?}", self.current_token);
+            println!(
+                "********************************************************************************"
+            );
             match self.current_token {
                 Token::Eof => break,
                 Token::SemiColon => {

@@ -25,4 +25,10 @@ impl OperatorPrecedence {
     pub fn get_precedence(&self) -> isize {
         self.precedence
     }
+
+    pub fn increment_other(other: &OperatorPrecedence) -> OperatorPrecedence {
+        OperatorPrecedence {
+            precedence: other.get_precedence() + 1,
+        }
+    }
 }
