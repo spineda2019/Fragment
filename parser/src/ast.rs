@@ -19,20 +19,24 @@ use crate::{
 pub struct Ast<'a> {
     lexer: &'a mut Lexer,
     current_token: Token,
+    verbose: bool,
 }
 
 impl<'a> Ast<'a> {
-    pub fn new(lexer: &'a mut Lexer) -> Self {
+    pub fn new(lexer: &'a mut Lexer, verbose: bool) -> Self {
         Self {
             lexer,
             current_token: Token::BeginningOfFile,
+            verbose,
         }
     }
 
     fn eat_current_token_and_advance_lexer(&mut self) -> Result<(), CompilerError> {
-        println!("\n*** About to Eat Token ***");
-        println!("{:?}", self.current_token);
-        println!("*** Token Eaten ***\n");
+        if self.verbose {
+            println!("\n*** About to Eat Token ***");
+            println!("{:?}", self.current_token);
+            println!("*** Token Eaten ***\n");
+        }
         self.current_token = self.lexer.get_token()?;
         Ok(())
     }
@@ -172,10 +176,12 @@ impl<'a> Ast<'a> {
     fn handle_extern(&mut self) -> Result<(), CompilerError> {
         let parse_node = self.parse_extern()?;
         parse_node.print();
-        println!(
-            "Succesfully parsed definition! Current Token: {:?}",
-            self.current_token
-        );
+        if self.verbose {
+            println!(
+                "Succesfully parsed definition! Current Token: {:?}",
+                self.current_token
+            );
+        }
         Ok(())
     }
 
@@ -188,15 +194,19 @@ impl<'a> Ast<'a> {
     fn handle_top_level_expression(&mut self) -> Result<(), CompilerError> {
         let parse_node = self.parse_top_level_expression()?;
         parse_node.print();
-        println!(
-            "Succesfully parsed definition! Current Token: {:?}",
-            self.current_token
-        );
+        if self.verbose {
+            println!(
+                "Succesfully parsed definition! Current Token: {:?}",
+                self.current_token
+            );
+        }
         Ok(())
     }
 
     fn parse_prototype(&mut self) -> Result<Box<FunctionPrototype>, CompilerError> {
-        println!("Start parsing prototype!");
+        if self.verbose {
+            println!("Start parsing prototype!");
+        }
         if let Token::Identifier(id) = &self.current_token {
             let function_name: String = id.to_string();
 
@@ -213,7 +223,9 @@ impl<'a> Ast<'a> {
 
             let mut args: Vec<String> = Vec::new();
             while let Token::Identifier(arg) = &self.current_token {
-                println!("parse_protoype: Prototype arg found: {}\n", arg);
+                if self.verbose {
+                    println!("parse_protoype: Prototype arg found: {}\n", arg);
+                }
                 args.push(arg.to_string());
                 self.eat_current_token_and_advance_lexer()?;
             }
@@ -226,7 +238,9 @@ impl<'a> Ast<'a> {
 
             // eat ) token
             self.eat_current_token_and_advance_lexer()?;
-            println!("prototype parsed!!");
+            if self.verbose {
+                println!("prototype parsed!!");
+            }
             Ok(Box::new(FunctionPrototype::new(&function_name, args)))
         } else {
             Err(CompilerError::FunctionNameNotFound)
@@ -234,7 +248,9 @@ impl<'a> Ast<'a> {
     }
 
     fn parse_definition(&mut self) -> Result<Box<Function>, CompilerError> {
-        println!("Start parsing definition!");
+        if self.verbose {
+            println!("Start parsing definition!");
+        }
         if self.current_token != Token::Def {
             return Err(CompilerError::UnexpectedTokenError(
                 self.current_token.clone(),
@@ -247,18 +263,25 @@ impl<'a> Ast<'a> {
         let prototype: Box<FunctionPrototype> = self.parse_prototype()?;
         let definition_expression = self.parse_expression()?;
 
-        println!("Finished parsing definition!");
+        if self.verbose {
+            println!("Finished parsing definition!");
+        }
         Ok(Box::new(Function::new(prototype, definition_expression)))
     }
 
     fn handle_definition(&mut self) -> Result<(), CompilerError> {
-        println!("Start handling def!");
+        if self.verbose {
+            println!("Start handling def!");
+        }
         let defintion_node = self.parse_definition()?;
         defintion_node.print();
-        println!(
-            "Succesfully parsed definition! Current Token: {:?}",
-            self.current_token
-        );
+
+        if self.verbose {
+            println!(
+                "Succesfully parsed definition! Current Token: {:?}",
+                self.current_token
+            );
+        }
 
         Ok(())
     }
@@ -269,16 +292,18 @@ impl<'a> Ast<'a> {
     /// * `self` - a mutable reference to self - a Parser that owns a lexer buffer and a current
     /// token
     pub fn parse_tokens(&mut self) -> Result<(), CompilerError> {
-        println!("*******************************************************************************");
-        println!("*                         In the parsing tokens stage!                        *");
-        println!("*******************************************************************************");
-        println!(" ");
+        if self.verbose {
+            println!("***************************************************************************");
+            println!("*                       In the parsing tokens stage!                      *");
+            println!("***************************************************************************");
+            println!(" ");
+        }
         self.eat_current_token_and_advance_lexer()?; // eat the beginning of file token
 
         loop {
-            println!(
-                "********************************************************************************"
-            );
+            if self.verbose {
+                println!("*********************************************************************\n");
+            }
             match self.current_token {
                 Token::Eof => break,
                 Token::SemiColon => {

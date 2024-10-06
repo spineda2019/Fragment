@@ -8,6 +8,7 @@ use parser::ast::Ast;
 fn main() -> Result<(), CompilerError> {
     let mut files: Vec<PathBuf> = Vec::new();
     let mut lex_only: bool = false;
+    let mut verbose: bool = false;
 
     {
         let mut argument_parse: ArgumentParser = ArgumentParser::new();
@@ -21,6 +22,12 @@ fn main() -> Result<(), CompilerError> {
             &["-l", "--lex"],
             StoreTrue,
             "Indicate to only lex and display tokens",
+        );
+
+        argument_parse.refer(&mut verbose).add_option(
+            &["--verbose"],
+            StoreTrue,
+            "Increase printing info",
         );
 
         argument_parse.parse_args_or_exit();
@@ -45,7 +52,7 @@ fn main() -> Result<(), CompilerError> {
         println!("Compiling files: {:?}\n", &files);
         for file in files {
             lexer.new_file(file)?;
-            let mut ast: Ast = Ast::new(&mut lexer);
+            let mut ast: Ast = Ast::new(&mut lexer, verbose);
             ast.parse_tokens()?;
         }
     }
