@@ -260,6 +260,11 @@ impl<'a> Ast<'a> {
         Ok(())
     }
 
+    /// Parse tokens in the source file
+    ///
+    /// # Arguments
+    /// * `self` - a mutable reference to self - a Parser that owns a lexer buffer and a current
+    /// token
     pub fn parse_tokens(&mut self) -> Result<(), CompilerError> {
         println!("*******************************************************************************");
         println!("*                         In the parsing tokens stage!                        *");
