@@ -22,14 +22,14 @@ impl Lexer {
     pub fn init() -> Lexer {
         Lexer {
             current_char_reader: None,
-            current_line_number: 0,
+            current_line_number: 1,
         }
     }
 
     pub fn new(file: PathBuf) -> Result<Lexer, CompilerError> {
         Ok(Lexer {
             current_char_reader: Some(CharReader::new(file)?),
-            current_line_number: 0,
+            current_line_number: 1,
         })
     }
 
@@ -56,7 +56,7 @@ impl Lexer {
         };
 
         self.current_char_reader = Some(CharReader::new(file)?);
-        self.current_line_number = 0;
+        self.current_line_number = 1;
         Ok(())
     }
 
