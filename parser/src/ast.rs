@@ -41,7 +41,10 @@ impl<'a> Ast<'a> {
         self.current_token = self.lexer.get_token()?;
         match self.current_token {
             Token::F64Literal(number) => Ok(Box::new(NumericExpression::new(number))),
-            _ => Err(CompilerError::ExpectedNumberError),
+            _ => Err(CompilerError::ExpectedNumberError(
+                self.lexer.current_line(),
+                self.lexer.current_file(),
+            )),
         }
     }
 

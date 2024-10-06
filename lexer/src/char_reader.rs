@@ -28,6 +28,13 @@ impl CharReader {
         })
     }
 
+    pub fn current_file(&self) -> String {
+        self.current_file
+            .to_str()
+            .unwrap_or("Unable to report source file...")
+            .to_string()
+    }
+
     pub fn getchar(&mut self) -> Option<char> {
         if let Some(c) = self.file_map.get(self.byte_pointer) {
             self.byte_pointer += 1;

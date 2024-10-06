@@ -12,7 +12,7 @@ pub enum CompilerError {
     UnreadableCharacterError(usize),
     NonExistentFileError,
     InvalidNumberError(String),
-    ExpectedNumberError,
+    ExpectedNumberError(usize, String),
     ExpectedExpressionError,
     InvalidOperaterCharacter(char),
     FunctionNameNotFound,
@@ -49,9 +49,10 @@ impl CompilerError {
             CompilerError::InvalidNumberError(number) => {
                 format!("Invalid numeric format: {}", number)
             }
-            CompilerError::ExpectedNumberError => {
-                String::from("Expected to find number expression, but none were found")
-            }
+            CompilerError::ExpectedNumberError(n, f) => format!(
+                "Expected to find number expression, but none were found\nLine: {}\nFile: {}",
+                n, f,
+            ),
             CompilerError::ExpectedExpressionError => {
                 String::from("An expression was expected, but not found...")
             }

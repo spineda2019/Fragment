@@ -33,6 +33,17 @@ impl Lexer {
         })
     }
 
+    pub fn current_line(&self) -> usize {
+        self.current_line_number
+    }
+
+    pub fn current_file(&self) -> String {
+        match &self.current_char_reader {
+            Some(reader) => reader.current_file(),
+            None => String::from("Unable to report source file..."),
+        }
+    }
+
     pub fn new_file(&mut self, file: PathBuf) -> Result<(), CompilerError> {
         match file.extension() {
             None => return Err(CompilerError::UnrecognizedFileError(file)),
@@ -65,7 +76,10 @@ impl Lexer {
 
         match built_lexeme.parse::<f64>() {
             Ok(n) => Ok(Token::F64Literal(n)),
-            Err(_) => Err(CompilerError::ExpectedNumberError),
+            Err(_) => Err(CompilerError::ExpectedNumberError(
+                self.current_line_number,
+                reader.current_file(),
+            )),
         }
     }
 
