@@ -42,9 +42,11 @@ impl<'a> Ast<'a> {
     }
 
     fn parse_number_expression(&mut self) -> Result<Box<NumericExpression>, CompilerError> {
-        self.current_token = self.lexer.get_token()?;
         match self.current_token {
-            Token::F64Literal(number) => Ok(Box::new(NumericExpression::new(number))),
+            Token::F64Literal(number) => {
+                self.eat_current_token_and_advance_lexer()?;
+                Ok(Box::new(NumericExpression::new(number)))
+            }
             _ => Err(CompilerError::ExpectedNumberError(
                 self.lexer.current_line(),
                 self.lexer.current_file(),
@@ -63,6 +65,7 @@ impl<'a> Ast<'a> {
             }
         };
 
+        // eat identifier
         self.eat_current_token_and_advance_lexer()?;
         let mut expressions: Vec<Box<dyn ASTNode>> = Vec::new();
 
@@ -110,15 +113,25 @@ impl<'a> Ast<'a> {
         mut lhs: Box<dyn ASTNode>,
     ) -> Result<Box<dyn ASTNode>, CompilerError> {
         loop {
+            if self.verbose {
+                println!("Parsing binary expression. LHS:\n{}", lhs);
+            }
             let current_token_precedence: OperatorPrecedence =
                 OperatorPrecedence::new(&self.current_token);
 
             if current_token_precedence.get_precedence() < precedence.get_precedence() {
+                if self.verbose {
+                    println!("While parsing binop, this token:");
+                    println!("{:?}", self.current_token);
+                    println!("Had a lower precedence than:");
+                    println!("{}\n", precedence.get_precedence());
+                }
                 return Ok(lhs);
             } else {
                 let binary_operator: SimpleBinaryOperater =
                     SimpleBinaryOperater::from_token(&self.current_token)?;
 
+                // eat operator
                 self.eat_current_token_and_advance_lexer()?;
 
                 let mut rhs = self.parse_primary()?;
@@ -196,7 +209,7 @@ impl<'a> Ast<'a> {
         parse_node.print();
         if self.verbose {
             println!(
-                "Succesfully parsed definition! Current Token: {:?}",
+                "Succesfully parsed top level expression! Current Token: {:?}",
                 self.current_token
             );
         }
